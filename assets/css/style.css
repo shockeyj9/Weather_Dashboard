@@ -1,0 +1,38 @@
+header{
+    display: flex;
+    align-items: center;
+    background-image: linear-gradient(to right,  rgb(130, 130, 181), rgb(80, 80, 176),rgb(42, 36, 125));
+    height: 50px;
+}
+h1{
+    position: relative;
+    left: 55%;
+    color: white;
+    font-weight: bold;
+    font-size: 30px;
+}
+main{
+    display: grid;
+    grid-template-columns: 25% 75%;
+}
+
+.side-bar{
+    display: grid;
+    grid-template-rows: auto auto;
+}
+.search, .history{
+    display: flex;
+    flex-direction: column;
+    padding: 3%;
+    /* margin: 2%; */
+    text-align: center;
+}
+
+ul{
+    border-top: 2px solid rgba(183, 180, 180, 0.638);
+}
+li, input{
+    background-color: antiquewhite;
+    padding: 3%;
+    margin: 2%;
+}
