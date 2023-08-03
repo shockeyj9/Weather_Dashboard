@@ -1,10 +1,9 @@
 //Define global variables here
-/* 
-One for: Form searchForm
-One for: historicOption
-*/
+var searchForm = document.querySelector('#search-button');
+var historicOption = document.getElementById('history');
+var cityInput = document.querySelector('#city-name');
 
-//storedCities = [];
+var storedCities = [];
 
 
 /*function: searchedEventHandler {
@@ -13,6 +12,15 @@ One for: historicOption
 
     if citySearched is not null then it should trigger the getWeather function
 }*/
+var searchedEventHandler = function(event){
+    event.preventDefault();
+    var citySearched = cityInput.value.trim();
+    if (citySearched){
+        storedCities.push(citySearched);
+        localStorage.setItem("storedCities",JSON.stringify(storedCities));
+        // console.log(citySearched);
+    } else{return}
+}
 
 /*function: selectedEventHandler {
     take the event.target's textContent and assign to variable citySelected
@@ -46,5 +54,6 @@ One for: historicOption
 
 
 // event listener for page load -- need to pull local storage into saveCities array 
-//searchForm.eventlistener -- function: searchedEventHandler
+// searchForm.addEventListener('click', searchedEventHandler)
+searchForm.addEventListener('click', searchedEventHandler);
 //historicOption.eventlistener -- function: selectedEventHandler
