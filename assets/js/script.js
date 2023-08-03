@@ -2,6 +2,7 @@
 var searchForm = document.querySelector('#search-button');
 var historicOption = document.querySelector('.history');
 var cityInput = document.querySelector('#city-name');
+var forecastContainer = document.querySelector('.forcast');
 
 var storedCities = [];
 const APIkey = '';
@@ -37,7 +38,8 @@ var getCityCoordinates = function (citySearched){
         .then(function(data){
             for (var i = 0; i<data.length;i++){
                 // console.log(data[i].lat,data[i].lon);
-                getWeather(data[i].lat,data[i].lon)
+                // getWeather(data[i].lat,data[i].lon)
+                currentWeather(data[i].lat,data[i].lon);
             }
         })
         .catch(error => console.log('error', error));
@@ -58,19 +60,51 @@ var getWeather = function(lat,lon){
             var weatherList = data.list;
         for (var i=0; i<weatherList.length;i++){
             console.log(weatherList[i].dt_txt);
-//right now this pulls the forcast information in 3 hour incredments, we'll need to narrow it down to a single hour and render those results to the page
+    //right now this pulls the forcast information in 3 hour incredments, we'll need to narrow it down to a single hour and render those results to the page
+            //renderCurrent(weatherList[i].dt_txt,weatherList[i].TEMP,weatherList[i].WIND,weatherList[i].HUMIDITY)
         }
         })
         .catch(error => console.log('error', error));
 }
 
-/* function: currentWeather(city stuff) {
-    take elements from API and createElements
-}*/
+//-------------GETTING CURRENT WEATHER----------//
+var currentWeather = function (lat,lon){
+    var requestOptions = {
+        method: 'GET',
+        redirect: 'follow'
+      };
+      
+      fetch("https://api.openweathermap.org/data/2.5/weather?lat="+lat+"&lon="+lon+"&appid="+APIkey, requestOptions)
+        .then(function(response){
+            return response.json();
+        })
+        .then(function(data){
+            console.log(data);
+        })
+        .catch(error => console.log('error', error));
 
-/* function: forecastWeather(city stuff) {
-    take elements from API and createElements
-}*/
+}
+
+//-----------RENDER FORECAST WEATHER------------------//
+var renderCurrent = function(date, temp, wind,humidity){
+    var cardHeader = document.createElement('h3');
+    var forecastCard = document.createElement('ul');
+    var cardTemp = document.createElement('li');
+    var cardWind = document.createElement('li');
+    var cardHumid = document.createElement('li');
+    forecastCard.setAttribute('class', 'forecast-card');
+    forecastContainer.append(cardHeader);
+    forecastContainer.append(forecastCard);
+    forecastCard.append(cardTemp);
+    forecastCard.append(cardWind);
+    forecastCard.append(cardHumid);
+    cardHeader.textContent = date;
+    cardTemp.textContent = temp;
+    cardWind.textContent = wind;
+    cardHumid.textContent = humidity;
+    //IMAGE FOR WEATHER NEEDS DONE
+}
+
 
 //-----------RENDERING PREVIOUS SEARCHES ONTO PAGE-------------//
 var renderCities = function(){
