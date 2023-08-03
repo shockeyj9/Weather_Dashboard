@@ -4,6 +4,7 @@ var historicOption = document.querySelector('.history');
 var cityInput = document.querySelector('#city-name');
 
 var storedCities = [];
+const APIkey = '';
 
 
 //--------SEARCH BUTTON KICK OFF ------------//
@@ -11,9 +12,8 @@ var searchedEventHandler = function(event){
     event.preventDefault();
     var citySearched = cityInput.value.trim();
     if (citySearched){
-        storedCities.push(citySearched);
         localStorage.setItem("storedCities",JSON.stringify(storedCities));
-        //GET LON AND LAT FUNCTION HERE
+        getCityCoordinates(citySearched);
     } 
 }
 
@@ -23,19 +23,46 @@ var searchedEventHandler = function(event){
     if citySelected is not null then it should trigger the getWeather function
 }*/
 
-/*function: getlat&lon {
-    take the city name and use that within the fetch
-    .then{
-        call getWeather(lat&lon);
-        call 
-    }
-} */
+//--------------GET SEARCHED CITY'S COORDINATES-----------//
+var getCityCoordinates = function (citySearched){
+    var requestOptions = {
+        method: 'GET',
+        redirect: 'follow'
+      };
+      
+      fetch("http://api.openweathermap.org/geo/1.0/direct?q="+citySearched+",Colorado,US&limit=1&appid="+APIkey, requestOptions)
+        .then(function(response){
+            return response.json();
+        })
+        .then(function(data){
+            for (var i = 0; i<data.length;i++){
+                // console.log(data[i].lat,data[i].lon);
+                getWeather(data[i].lat,data[i].lon)
+            }
+        })
+        .catch(error => console.log('error', error));
+}
 
-/*function: getWeather {
-    take in the city and use that within the fetch 
-
-    within the .then -- call function for currentWeather(data.stuff) and forecastWeather(data.stuff)
-}*/
+//------------------GETTING FORCAST DATA--------------//
+var getWeather = function(lat,lon){
+    var requestOptions = {
+        method: 'GET',
+        redirect: 'follow'
+      };
+      
+      fetch("http://api.openweathermap.org/data/2.5/forecast?lat="+lat+"&lon="+lon+"&appid="+APIkey+"&units=imperial", requestOptions)
+        .then(function(response){
+            return response.json();
+        })
+        .then(function(data){
+            var weatherList = data.list;
+        for (var i=0; i<weatherList.length;i++){
+            console.log(weatherList[i].dt_txt);
+//right now this pulls the forcast information in 3 hour incredments, we'll need to narrow it down to a single hour and render those results to the page
+        }
+        })
+        .catch(error => console.log('error', error));
+}
 
 /* function: currentWeather(city stuff) {
     take elements from API and createElements
@@ -47,7 +74,6 @@ var searchedEventHandler = function(event){
 
 //-----------RENDERING PREVIOUS SEARCHES ONTO PAGE-------------//
 var renderCities = function(){
-    console.log("loading");
     storedCities = JSON.parse(localStorage.getItem('storedCities'));
     storedCities.forEach(element => {
         var cityItem = document.createElement("li");
