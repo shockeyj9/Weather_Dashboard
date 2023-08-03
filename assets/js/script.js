@@ -1,25 +1,20 @@
 //Define global variables here
 var searchForm = document.querySelector('#search-button');
-var historicOption = document.getElementById('history');
+var historicOption = document.querySelector('.history');
 var cityInput = document.querySelector('#city-name');
 
 var storedCities = [];
 
 
-/*function: searchedEventHandler {
-    take the event.target's textContent and assign to variable citySearched
-    call saveCities(citySearched) to update local storage with new city name
-
-    if citySearched is not null then it should trigger the getWeather function
-}*/
+//--------SEARCH BUTTON KICK OFF ------------//
 var searchedEventHandler = function(event){
     event.preventDefault();
     var citySearched = cityInput.value.trim();
     if (citySearched){
         storedCities.push(citySearched);
         localStorage.setItem("storedCities",JSON.stringify(storedCities));
-        // console.log(citySearched);
-    } else{return}
+        //GET LON AND LAT FUNCTION HERE
+    } 
 }
 
 /*function: selectedEventHandler {
@@ -27,6 +22,14 @@ var searchedEventHandler = function(event){
 
     if citySelected is not null then it should trigger the getWeather function
 }*/
+
+/*function: getlat&lon {
+    take the city name and use that within the fetch
+    .then{
+        call getWeather(lat&lon);
+        call 
+    }
+} */
 
 /*function: getWeather {
     take in the city and use that within the fetch 
@@ -42,18 +45,18 @@ var searchedEventHandler = function(event){
     take elements from API and createElements
 }*/
 
-/* function: saveCities (citySearched){
-    push the citySearched to storedCities
-    send the array to local storage
-}*/
+//-----------RENDERING PREVIOUS SEARCHES ONTO PAGE-------------//
+var renderCities = function(){
+    console.log("loading");
+    storedCities = JSON.parse(localStorage.getItem('storedCities'));
+    storedCities.forEach(element => {
+        var cityItem = document.createElement("li");
+        historicOption.append(cityItem); 
+        cityItem.textContent = element;
+    });
+}
 
-/* function: getCities (citySearched){
-    get data from local storage and insert into citySearched array
-    create a list element for each city in array
-}*/
 
-
-// event listener for page load -- need to pull local storage into saveCities array 
-// searchForm.addEventListener('click', searchedEventHandler)
+renderCities();
 searchForm.addEventListener('click', searchedEventHandler);
 //historicOption.eventlistener -- function: selectedEventHandler
