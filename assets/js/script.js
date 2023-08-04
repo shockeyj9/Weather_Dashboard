@@ -10,21 +10,49 @@ var storedCities = [];
 const APIkey = '';
 
 
+//--------KEEPS HISTORICAL CITIES POPULATED WHEN REFRESHING------------//
+function init(){
+    var stCities = JSON.parse(localStorage.getItem('storedCities'));
+    if (stCities!==null){
+        storedCities= stCities;
+    }
+    renderCities();
+}
+
+//-------------------STORING CITIES------------------//
+function storeCities(){
+    localStorage.setItem("storedCities",JSON.stringify(storedCities));
+}
+
 //--------SEARCH BUTTON KICK OFF ------------//
 var searchedEventHandler = function(event){
     event.preventDefault();
     var citySearched = cityInput.value.trim();
-    if (citySearched){
-        localStorage.setItem("storedCities",JSON.stringify(storedCities));
-        renderCities();
-        getCityCoordinates(citySearched);
-    } 
-}
+        if (citySearched === ""){
+            return;
+        }
+    storedCities.push(citySearched);
+    cityInput.value = '';
+    storeCities();
+    renderCities();
+    getCityCoordinates(citySearched);
 
+}
+//-----------RENDERING PREVIOUS SEARCHES ONTO PAGE-------------//
+var renderCities = function(){
+    historicOption.innerHTML = "";
+    for (var i =0; i<storedCities.length;i++){
+        var city = storedCities[i];
+        var li = document.createElement("li");
+        li.textContent = city;
+        historicOption.appendChild(li);
+    }
+}
+ 
 //---------HISTORY BUTTON KICK OFF-------------//
-var searchedEventHandler = function(event){
+var historyEventHandler = function(event){
     var citySelected = event.target
-        getCityCoordinates(citySelected.textContent);
+    getCityCoordinates(citySelected.textContent);
 }
 
 //--------------GET SEARCHED CITY'S COORDINATES-----------//
@@ -57,15 +85,42 @@ var getWeather = function(lat,lon){
         return response.json();
     })
     .then(function(data){
-        var weatherList = data.list;
-    for (var i=0; i<weatherList.length;i++){
-        console.log(weatherList[i].dt_txt);
-//right now this pulls the forcast information in 3 hour incredments, we'll need to narrow it down to a single hour and render those results to the page
-        //renderForecast(weatherList[i].dt_txt,weatherList[i].TEMP,weatherList[i].WIND,weatherList[i].HUMIDITY)
+        var data = data.list;
+    for (var i=0; i<data.length;i++){
+        var time = new Date().getHours();  
+        var closestTime = data[i].dt_txt;
+        closestTime = closestTime.split(" ")[1].split(":")[0];
+        var diff = time-closestTime
+        if (diff<0){
+            getWeatherParameters(data[i]);
+        }else if (closestTime=='00'){
+            getWeatherParameters(data[i]);
+        }
     }
     })
     .catch(error => console.log('error', error));
 }
+
+
+//-----------gets variables needed for rendering
+function getWeatherParameters (data){
+    var date = data.dt_txt.split(" ")[0];
+    var temp1 = data.main.temp;
+    var wind = data.wind.speed;
+    var humidity = data.main.humidity;
+    var icon = data.weather[0].icon;
+    renderForecast(date, temp1, wind,humidity);
+}
+function getCurParameters (data){
+    console.log(data);
+    var date = new Date(data.dt);
+    var temp1 = data.main.temp;
+    var wind = data.wind.speed;
+    var humidity = data.main.humidity;
+    var icon = data.weather[0].icon;
+    renderCurrent(date, temp1, wind,humidity);
+}
+
 
 //-------------GETTING CURRENT WEATHER----------//
 var currentWeather = function (lat,lon){
@@ -78,14 +133,13 @@ var currentWeather = function (lat,lon){
         return response.json();
     })
     .then(function(data){
-        console.log(data);
-        // renderCurrent(date, temp, wind,humidity);
+        getCurParameters(data)
     })
     .catch(error => console.log('error', error));
 }
 
 //-----------RENDER FORECAST WEATHER------------------//
-var renderForecast = function(date, temp, wind,humidity){
+var renderCurrent = function(date, temp, wind,humidity){
     var cardHeader = document.createElement('h2');
     var currentCard = document.createElement('ul');
     var cardTemp = document.createElement('li');
@@ -97,14 +151,14 @@ var renderForecast = function(date, temp, wind,humidity){
     currentCard.append(cardWind);
     currentCard.append(cardHumid);
     cardHeader.textContent = date;
-    cardTemp.textContent = temp;
-    cardWind.textContent = wind;
-    cardHumid.textContent = humidity;
+    cardTemp.textContent = "Temp: "+temp+" °F";
+    cardWind.textContent ="Wind: " +wind+" MPH";
+    cardHumid.textContent = "Humidity: "+humidity+" %";
 // !!!!!!!!!!!!!!!!!!IMAGE FOR WEATHER NEEDS DONE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 }
 
 //-----------RENDER CURRENT WEATHER------------------//
-var renderCurrent = function(date, temp, wind,humidity){
+var renderForecast = function(date, temp, wind,humidity){
     var cardHeader = document.createElement('h3');
     var forecastCard = document.createElement('ul');
     var cardTemp = document.createElement('li');
@@ -124,17 +178,6 @@ var renderCurrent = function(date, temp, wind,humidity){
 }
 
 
-//-----------RENDERING PREVIOUS SEARCHES ONTO PAGE-------------//
-var renderCities = function(){
-    storedCities = JSON.parse(localStorage.getItem('storedCities'));
-    storedCities.forEach(element => {
-        var cityItem = document.createElement("li");
-        historicOption.append(cityItem); 
-        cityItem.textContent = element;
-    });
-}
-
-
-renderCities();
+init();
 searchForm.addEventListener('click', searchedEventHandler);
-//historicOption.eventlistener -- function: selectedEventHandler
+historicOption.addEventListener('click', historyEventHandler);
