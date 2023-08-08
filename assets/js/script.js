@@ -5,6 +5,7 @@ var cityInput = document.querySelector('#city-name');
 var forecastContainer = document.querySelector('.forcast');
 var CurrentContainer = document.querySelector('.current');
 var storedCities = [];
+var timeArray = [];
 
 ///DO NOT ADD/COMMIT WITH THIS SET!! 
 const APIkey = '';
@@ -28,7 +29,7 @@ function storeCities(){
 var searchedEventHandler = function(event){
     event.preventDefault();
     var citySearched = cityInput.value.trim();
-        if (citySearched === ""){
+        if (citySearched === ""||storedCities.includes(citySearched)){
             return;
         }
     storedCities.push(citySearched);
@@ -86,19 +87,31 @@ var getWeather = function(lat,lon){
     })
     .then(function(data){
         var data = data.list;
+
     for (var i=0; i<data.length;i++){
         var time = new Date().getHours();  
         var closestTime = data[i].dt_txt;
+        var currentData = data[i]
         closestTime = closestTime.split(" ")[1].split(":")[0];
         var diff = time-closestTime
-        if (diff<0){
-            getWeatherParameters(data[i]);
-        }else if (closestTime=='00'){
-            getWeatherParameters(data[i]);
-        }
+        diff = Math.abs(diff);        
+        timeArray.push({diff,currentData});  
     }
+    getClosestTime();
     })
     .catch(error => console.log('error', error));
+}
+
+//---FINDS FORECAST INFO CLOSEST TO CURRENT HOUR TO DISPLAY---//
+var getClosestTime = function(){
+    var min = Math.min(...timeArray.map(element=> element.diff));
+    var max = Math.max(...timeArray.map(element=> element.diff));
+    for (var i=0; i<timeArray.length; i++){
+        if (timeArray[i].diff===min) {
+            getWeatherParameters(timeArray[i].currentData);
+        }
+    }
+
 }
 
 
@@ -108,17 +121,16 @@ function getWeatherParameters (data){
     var temp1 = data.main.temp;
     var wind = data.wind.speed;
     var humidity = data.main.humidity;
-    var icon = data.weather[0].icon;
+    // var icon = data.weather[0].icon;
     renderForecast(date, temp1, wind,humidity);
 }
 function getCurParameters (data){
-    console.log(data);
-    var date = new Date(data.dt);
+    var name = data.name;
+    var date = data.dt*1000;
     var temp1 = data.main.temp;
     var wind = data.wind.speed;
     var humidity = data.main.humidity;
-    var icon = data.weather[0].icon;
-    renderCurrent(date, temp1, wind,humidity);
+    renderCurrent(date, temp1, wind,humidity,name);
 }
 
 
@@ -128,7 +140,7 @@ var currentWeather = function (lat,lon){
         method: 'GET',
         redirect: 'follow'
     };
-    fetch("https://api.openweathermap.org/data/2.5/weather?lat="+lat+"&lon="+lon+"&appid="+APIkey, requestOptions)
+    fetch("https://api.openweathermap.org/data/2.5/weather?lat="+lat+"&lon="+lon+"&appid="+APIkey+"&units=imperial", requestOptions)
     .then(function(response){
         return response.json();
     })
@@ -138,26 +150,30 @@ var currentWeather = function (lat,lon){
     .catch(error => console.log('error', error));
 }
 
-//-----------RENDER FORECAST WEATHER------------------//
-var renderCurrent = function(date, temp, wind,humidity){
+//-----------RENDER CURRENT WEATHER------------------//
+var renderCurrent = function(date, temp, wind,humidity,name){
     var cardHeader = document.createElement('h2');
     var currentCard = document.createElement('ul');
+    var cardName = document.createElement('li');
     var cardTemp = document.createElement('li');
     var cardWind = document.createElement('li');
     var cardHumid = document.createElement('li');
+    var fullDate = new Date(date); ///DATE FORMATTING NEEDS FIXED
+    CurrentContainer.innerHTML = '';
     CurrentContainer.append(cardHeader);
     CurrentContainer.append(currentCard);
+    currentCard.append(cardName);
     currentCard.append(cardTemp);
     currentCard.append(cardWind);
     currentCard.append(cardHumid);
-    cardHeader.textContent = date;
+    cardHeader.textContent = name + fullDate;
     cardTemp.textContent = "Temp: "+temp+" °F";
     cardWind.textContent ="Wind: " +wind+" MPH";
     cardHumid.textContent = "Humidity: "+humidity+" %";
 // !!!!!!!!!!!!!!!!!!IMAGE FOR WEATHER NEEDS DONE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 }
 
-//-----------RENDER CURRENT WEATHER------------------//
+//-----------RENDER FORECAST WEATHER------------------//
 var renderForecast = function(date, temp, wind,humidity){
     var cardHeader = document.createElement('h3');
     var forecastCard = document.createElement('ul');
@@ -165,15 +181,15 @@ var renderForecast = function(date, temp, wind,humidity){
     var cardWind = document.createElement('li');
     var cardHumid = document.createElement('li');
     forecastCard.setAttribute('class', 'forecast-card');
-    forecastContainer.append(cardHeader);
     forecastContainer.append(forecastCard);
+    forecastCard.append(cardHeader);
     forecastCard.append(cardTemp);
     forecastCard.append(cardWind);
     forecastCard.append(cardHumid);
     cardHeader.textContent = date;
-    cardTemp.textContent = temp;
-    cardWind.textContent = wind;
-    cardHumid.textContent = humidity;
+    cardTemp.textContent = "Temp: "+temp+" °F";
+    cardWind.textContent = "Wind: " +wind+" MPH";
+    cardHumid.textContent = "Humidity: "+humidity+" %";
 // !!!!!!!!!!!!!!!!!!IMAGE FOR WEATHER NEEDS DONE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 }
 
