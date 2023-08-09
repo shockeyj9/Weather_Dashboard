@@ -117,7 +117,7 @@ var getClosestTime = function(){
 
 //-----------gets variables needed for rendering
 function getWeatherParameters (data){
-    var date = data.dt_txt.split(" ")[0];
+    var date = data.dt*1000;;
     var temp1 = data.main.temp;
     var wind = data.wind.speed;
     var humidity = data.main.humidity;
@@ -185,6 +185,7 @@ var renderForecast = function(date, temp, wind,humidity,icon){
     var cardWind = document.createElement('li');
     var cardHumid = document.createElement('li');
     var cardIcon = document.createElement('img');
+    var fullDate = new Date(date); 
     forecastCard.setAttribute('class', 'forecast-card');
     cardIcon.setAttribute('src', 'https://openweathermap.org/img/wn/'+icon+'@2x.png');
     cardIcon.setAttribute('alt', 'weather-icon');
@@ -194,7 +195,7 @@ var renderForecast = function(date, temp, wind,humidity,icon){
     forecastCard.append(cardTemp);
     forecastCard.append(cardWind);
     forecastCard.append(cardHumid);
-    cardHeader.textContent = date;
+    cardHeader.textContent = fullDate.toLocaleDateString();
     cardTemp.textContent = "Temp: "+temp+" °F";
     cardWind.textContent = "Wind: " +wind+" MPH";
     cardHumid.textContent = "Humidity: "+humidity+" %";
