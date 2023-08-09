@@ -53,6 +53,7 @@ var renderCities = function(){
 //---------HISTORY BUTTON KICK OFF-------------//
 var historyEventHandler = function(event){
     var citySelected = event.target
+    forecastContainer.innerHTML='';
     getCityCoordinates(citySelected.textContent);
 }
 
@@ -105,7 +106,6 @@ var getWeather = function(lat,lon){
 //---FINDS FORECAST INFO CLOSEST TO CURRENT HOUR TO DISPLAY---//
 var getClosestTime = function(){
     var min = Math.min(...timeArray.map(element=> element.diff));
-    var max = Math.max(...timeArray.map(element=> element.diff));
     for (var i=0; i<timeArray.length; i++){
         if (timeArray[i].diff===min) {
             getWeatherParameters(timeArray[i].currentData);
@@ -121,8 +121,8 @@ function getWeatherParameters (data){
     var temp1 = data.main.temp;
     var wind = data.wind.speed;
     var humidity = data.main.humidity;
-    // var icon = data.weather[0].icon;
-    renderForecast(date, temp1, wind,humidity);
+    var icon = data.weather[0].icon;
+    renderForecast(date, temp1, wind,humidity,icon);
 }
 function getCurParameters (data){
     var name = data.name;
@@ -130,7 +130,8 @@ function getCurParameters (data){
     var temp1 = data.main.temp;
     var wind = data.wind.speed;
     var humidity = data.main.humidity;
-    renderCurrent(date, temp1, wind,humidity,name);
+    var icon = data.weather[0].icon;
+    renderCurrent(date, temp1, wind,humidity,name,icon);
 }
 
 
@@ -151,38 +152,45 @@ var currentWeather = function (lat,lon){
 }
 
 //-----------RENDER CURRENT WEATHER------------------//
-var renderCurrent = function(date, temp, wind,humidity,name){
+var renderCurrent = function(date, temp, wind,humidity,name,icon){
     var cardHeader = document.createElement('h2');
     var currentCard = document.createElement('ul');
     var cardName = document.createElement('li');
     var cardTemp = document.createElement('li');
     var cardWind = document.createElement('li');
     var cardHumid = document.createElement('li');
-    var fullDate = new Date(date); ///DATE FORMATTING NEEDS FIXED
+    var cardIcon = document.createElement('img');
+    cardIcon.setAttribute('src', 'https://openweathermap.org/img/wn/'+icon+'@2x.png');
+    cardIcon.setAttribute('alt', 'weather-icon');
+    var fullDate = new Date(date); 
     CurrentContainer.innerHTML = '';
     CurrentContainer.append(cardHeader);
+    CurrentContainer.append(cardIcon);
     CurrentContainer.append(currentCard);
     currentCard.append(cardName);
     currentCard.append(cardTemp);
     currentCard.append(cardWind);
     currentCard.append(cardHumid);
-    cardHeader.textContent = name + fullDate;
+    cardHeader.textContent = name +" ("+ fullDate.toLocaleDateString()+")" ;
     cardTemp.textContent = "Temp: "+temp+" °F";
     cardWind.textContent ="Wind: " +wind+" MPH";
     cardHumid.textContent = "Humidity: "+humidity+" %";
-// !!!!!!!!!!!!!!!!!!IMAGE FOR WEATHER NEEDS DONE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 }
 
 //-----------RENDER FORECAST WEATHER------------------//
-var renderForecast = function(date, temp, wind,humidity){
+var renderForecast = function(date, temp, wind,humidity,icon){
     var cardHeader = document.createElement('h3');
     var forecastCard = document.createElement('ul');
     var cardTemp = document.createElement('li');
     var cardWind = document.createElement('li');
     var cardHumid = document.createElement('li');
+    var cardIcon = document.createElement('img');
     forecastCard.setAttribute('class', 'forecast-card');
+    cardIcon.setAttribute('src', 'https://openweathermap.org/img/wn/'+icon+'@2x.png');
+    cardIcon.setAttribute('alt', 'weather-icon');
     forecastContainer.append(forecastCard);
     forecastCard.append(cardHeader);
+    forecastCard.append(cardIcon);
     forecastCard.append(cardTemp);
     forecastCard.append(cardWind);
     forecastCard.append(cardHumid);
@@ -190,7 +198,6 @@ var renderForecast = function(date, temp, wind,humidity){
     cardTemp.textContent = "Temp: "+temp+" °F";
     cardWind.textContent = "Wind: " +wind+" MPH";
     cardHumid.textContent = "Humidity: "+humidity+" %";
-// !!!!!!!!!!!!!!!!!!IMAGE FOR WEATHER NEEDS DONE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 }
 
 
