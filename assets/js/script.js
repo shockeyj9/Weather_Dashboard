@@ -77,7 +77,7 @@ var getCityCoordinates = function (citySearched){
         method: 'GET',
         redirect: 'follow'
     };
-    fetch("http://api.openweathermap.org/geo/1.0/direct?q="+citySearched+",US&limit=1&appid="+APIkey, requestOptions)
+    fetch("https://api.openweathermap.org/geo/1.0/direct?q="+citySearched+",US&limit=1&appid="+APIkey, requestOptions)
     .then(function(response){
         return response.json();
     })
@@ -96,7 +96,7 @@ var getWeather = function(lat,lon){
         method: 'GET',
         redirect: 'follow'
     };
-    fetch("http://api.openweathermap.org/data/2.5/forecast?lat="+lat+"&lon="+lon+"&appid="+APIkey+"&units=imperial", requestOptions)
+    fetch("https://api.openweathermap.org/data/2.5/forecast?lat="+lat+"&lon="+lon+"&appid="+APIkey+"&units=imperial", requestOptions)
     .then(function(response){
         return response.json();
     })
