@@ -2,13 +2,14 @@
 var searchForm = document.querySelector('#search-button');
 var historicOption = document.querySelector('.history');
 var cityInput = document.querySelector('#city-name');
-var forecastContainer = document.querySelector('.forcast');
+var forecastContainer = document.querySelector('.container')
+var forecastHeader = document.querySelector('.forecast h2');
 var CurrentContainer = document.querySelector('.current');
 var storedCities = [];
 var timeArray = [];
 
 ///DO NOT ADD/COMMIT WITH THIS SET!! 
-const APIkey = '';
+const APIkey = '7f9c2b97940fb79df4671178f06befc4';
 
 
 //--------KEEPS HISTORICAL CITIES POPULATED WHEN REFRESHING------------//
@@ -18,6 +19,15 @@ function init(){
         storedCities= stCities;
     }
     renderCities();
+}
+
+//--------------CLEAR PREVIOUS FORCAST ELEMENTS-------------//
+var clearWeather = function(){
+    if (forecastContainer){
+        while (forecastContainer.firstChild){
+            forecastContainer.removeChild(forecastContainer.firstChild);
+        }
+    }
 }
 
 //-------------------STORING CITIES------------------//
@@ -33,10 +43,13 @@ var searchedEventHandler = function(event){
             return;
         }
     storedCities.push(citySearched);
-    cityInput.value = '';
     storeCities();
     renderCities();
+    clearWeather();
     getCityCoordinates(citySearched);
+    forecastHeader.textContent = '5-Day Forecast';
+    cityInput.value = '';
+
 
 }
 //-----------RENDERING PREVIOUS SEARCHES ONTO PAGE-------------//
@@ -52,9 +65,10 @@ var renderCities = function(){
  
 //---------HISTORY BUTTON KICK OFF-------------//
 var historyEventHandler = function(event){
-    var citySelected = event.target
-    forecastContainer.innerHTML='';
+    var citySelected = event.target;
+    clearWeather();
     getCityCoordinates(citySelected.textContent);
+    forecastHeader.textContent = '5-Day Forecast';
 }
 
 //--------------GET SEARCHED CITY'S COORDINATES-----------//
@@ -63,7 +77,7 @@ var getCityCoordinates = function (citySearched){
         method: 'GET',
         redirect: 'follow'
     };
-    fetch("http://api.openweathermap.org/geo/1.0/direct?q="+citySearched+",Colorado,US&limit=1&appid="+APIkey, requestOptions)
+    fetch("http://api.openweathermap.org/geo/1.0/direct?q="+citySearched+",US&limit=1&appid="+APIkey, requestOptions)
     .then(function(response){
         return response.json();
     })
@@ -111,29 +125,8 @@ var getClosestTime = function(){
             getWeatherParameters(timeArray[i].currentData);
         }
     }
-
+    timeArray= [];
 }
-
-
-//-----------gets variables needed for rendering
-function getWeatherParameters (data){
-    var date = data.dt*1000;;
-    var temp1 = data.main.temp;
-    var wind = data.wind.speed;
-    var humidity = data.main.humidity;
-    var icon = data.weather[0].icon;
-    renderForecast(date, temp1, wind,humidity,icon);
-}
-function getCurParameters (data){
-    var name = data.name;
-    var date = data.dt*1000;
-    var temp1 = data.main.temp;
-    var wind = data.wind.speed;
-    var humidity = data.main.humidity;
-    var icon = data.weather[0].icon;
-    renderCurrent(date, temp1, wind,humidity,name,icon);
-}
-
 
 //-------------GETTING CURRENT WEATHER----------//
 var currentWeather = function (lat,lon){
@@ -146,9 +139,30 @@ var currentWeather = function (lat,lon){
         return response.json();
     })
     .then(function(data){
-        getCurParameters(data)
+        getCurParameters(data);
+
     })
     .catch(error => console.log('error', error));
+}
+
+//-----------gets variables needed for rendering
+function getWeatherParameters (data){
+    var date = data.dt*1000;;
+    var temp1 = data.main.temp;
+    var wind = data.wind.speed;
+    var humidity = data.main.humidity;
+    var icon = data.weather[0].icon;
+    renderForecast(date, temp1, wind,humidity,icon);
+
+}
+function getCurParameters (data){
+    var name = data.name;
+    var date = data.dt*1000;
+    var temp1 = data.main.temp;
+    var wind = data.wind.speed;
+    var humidity = data.main.humidity;
+    var icon = data.weather[0].icon;
+    renderCurrent(date, temp1, wind,humidity,name,icon);
 }
 
 //-----------RENDER CURRENT WEATHER------------------//
@@ -171,7 +185,7 @@ var renderCurrent = function(date, temp, wind,humidity,name,icon){
     currentCard.append(cardTemp);
     currentCard.append(cardWind);
     currentCard.append(cardHumid);
-    cardHeader.textContent = name +" ("+ fullDate.toLocaleDateString()+")" ;
+    cardHeader.textContent = name +" ("+ fullDate.toLocaleDateString()+")";
     cardTemp.textContent = "Temp: "+temp+" °F";
     cardWind.textContent ="Wind: " +wind+" MPH";
     cardHumid.textContent = "Humidity: "+humidity+" %";
@@ -179,6 +193,7 @@ var renderCurrent = function(date, temp, wind,humidity,name,icon){
 
 //-----------RENDER FORECAST WEATHER------------------//
 var renderForecast = function(date, temp, wind,humidity,icon){
+    // var forecastDiv = document.getElementsByTagName('div');
     var cardHeader = document.createElement('h3');
     var forecastCard = document.createElement('ul');
     var cardTemp = document.createElement('li');
@@ -200,6 +215,8 @@ var renderForecast = function(date, temp, wind,humidity,icon){
     cardWind.textContent = "Wind: " +wind+" MPH";
     cardHumid.textContent = "Humidity: "+humidity+" %";
 }
+
+
 
 
 init();

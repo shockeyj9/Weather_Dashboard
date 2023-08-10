@@ -1,7 +1,16 @@
+:root{
+    --searchBtn: #6991e3;
+    --historyBtns: #AEAEAE;
+    --forecastCards: #323D4F;
+    --headerLight: #465AB8;
+    --headerDark: #261461;
+    --topBorder: #E2E3E4;
+}
+
 header{
     display: flex;
     align-items: center;
-    background-image: linear-gradient(to right,  rgb(130, 130, 181), rgb(80, 80, 176),rgb(42, 36, 125));
+    background-image: linear-gradient(to right,  var(--headerLight), var(--headerDark));
     height: 50px;
 }
 h1{
@@ -9,30 +18,108 @@ h1{
     left: 55%;
     color: white;
     font-weight: bold;
-    font-size: 30px;
+    font-size: 35px;
 }
 main{
     display: grid;
     grid-template-columns: 25% 75%;
 }
 
-.side-bar{
-    display: grid;
-    grid-template-rows: auto auto;
-}
 .search, .history{
     display: flex;
     flex-direction: column;
     padding: 3%;
-    /* margin: 2%; */
     text-align: center;
 }
 
-ul{
-    border-top: 2px solid rgba(183, 180, 180, 0.638);
+h2{
+    font-weight: bolder;
+    font-size: 25px;
 }
-li, input{
-    background-color: antiquewhite;
+h3{
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.search h2{
+    text-align: left;
+    padding: 3%;
+}
+.history li, #search-button, input{
+    border-radius: 4px;
+}
+
+#search-button{
+    background-color: var(--searchBtn);
+    border: none;
+}
+
+input{
+    border-color: var(--historyBtns);
+    border-style: solid;
+}
+
+.history li{
+    background-color: var(--historyBtns);
+    border-radius: 4px;
+}
+.history li, #search-button:hover{
+    cursor: pointer;
+}
+
+.history {
+    border-top: 2px solid var(--topBorder);
+    margin: 2%;
+    padding: 3%;
+}
+
+.history li, input{
     padding: 3%;
     margin: 2%;
+}
+form{
+    display: flex;
+    flex-direction: column;
+}
+.container{
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+}
+.forcast h2{
+    margin-left: 10px;
+}
+.forecast-card{
+    background-color: var(--forecastCards);
+    color: white;
+    margin: 9px;
+    width: 200px;
+}
+.forecast-card li{
+    margin: 15px 15px 15px 5px;
+    padding: 0px 5px;
+}
+h3{
+    margin: 5px 15px 15px 5px;
+    padding: 0px 5px;
+}
+.current{
+    border: 1px solid black;
+    margin: 1%;
+}
+.current h2, img{
+display: inline;
+align-items: center;
+margin-left: 10px;
+}
+
+.current img{
+    position: relative;
+    top: 5px;
+    height: 30px;
+    width: 30px;
+}
+.current li{
+    margin: 15px 15px 15px 5px;
+    padding: 0px 5px;
 }
